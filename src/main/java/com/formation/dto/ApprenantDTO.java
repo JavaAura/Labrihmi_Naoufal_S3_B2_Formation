@@ -14,20 +14,21 @@ import java.util.Set;
 @AllArgsConstructor
 public class ApprenantDTO {
     private Long id;
-
+    
     @NotBlank(message = "Le nom est obligatoire")
     private String nom;
-
+    
     @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
-
-    @Email(message = "L'email doit être valide")
+    
     @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "L'email doit être valide")
     private String email;
-
+    
     @NotBlank(message = "Le niveau est obligatoire")
     private String niveau;
-
-    private Long classeId;
+    
+    // Only store IDs for relationships
     private Set<Long> formationIds;
+    private Long classeId;
 }

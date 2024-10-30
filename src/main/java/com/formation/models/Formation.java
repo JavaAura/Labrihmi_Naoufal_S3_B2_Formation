@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -44,12 +46,17 @@ public class Formation {
     @NotNull(message = "La date de fin est obligatoire")
     private LocalDateTime dateFin;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "formateur_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Formateur formateur;
 
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "formation_apprenant", joinColumns = @JoinColumn(name = "formation_id"), inverseJoinColumns = @JoinColumn(name = "apprenant_id"))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
     private Set<Apprenant> apprenants = new HashSet<>();
 
     @Enumerated(EnumType.STRING)

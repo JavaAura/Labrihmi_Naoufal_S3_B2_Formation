@@ -31,4 +31,8 @@ public interface IFormateurService {
     void assignToClasse(Long formateurId, Long classeId);
 
     void removeFromClasse(Long formateurId);
+
+    void assignToFormation(Long formateurId, Long formationId);
+
+    void removeFromFormation(Long formateurId, Long formationId);
 }

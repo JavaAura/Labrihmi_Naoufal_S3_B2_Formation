@@ -8,6 +8,9 @@ import lombok.Builder;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +42,7 @@ public class Formateur {
     @OneToMany(mappedBy = "formateur")
     private Set<Formation> formations = new HashSet<>();
 
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "classe_id")
     private Classe classe;

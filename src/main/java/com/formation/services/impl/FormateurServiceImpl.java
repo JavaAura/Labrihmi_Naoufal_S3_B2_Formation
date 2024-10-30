@@ -4,11 +4,15 @@ import com.formation.dto.FormateurDTO;
 import com.formation.exceptions.ResourceNotFoundException;
 import com.formation.models.Classe;
 import com.formation.models.Formateur;
+import com.formation.models.Formation;
+import com.formation.models.FormationStatus;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormateurRepository;
+import com.formation.repositories.FormationRepository;
 import com.formation.services.interfaces.IFormateurService;
 import com.formation.utils.FormateurMapper;
 import com.formation.validation.FormateurValidator;
+import com.formation.validation.exception.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,7 @@ public class FormateurServiceImpl implements IFormateurService {
     private final ClasseRepository classeRepository;
     private final FormateurMapper formateurMapper;
     private final FormateurValidator formateurValidator;
+    private final FormationRepository formationRepository;
 
     @Override
     public FormateurDTO save(FormateurDTO formateurDTO) {
@@ -130,5 +135,53 @@ public class FormateurServiceImpl implements IFormateurService {
 
         formateur.setClasse(null);
         formateurRepository.save(formateur);
+    }
+
+    @Override
+    @Transactional
+    public void assignToFormation(Long formateurId, Long formationId) {
+        logger.info("Assigning formateur {} to formation {}", formateurId, formationId);
+        Formateur formateur = formateurRepository.findById(formateurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+
+        Formation formation = formationRepository.findById(formationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
+
+        if (formation.getFormateur() != null) {
+            throw new ValidationException("La formation a déjà un formateur assigné");
+        }
+
+        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
+            throw new ValidationException("Le formateur ne peut être assigné qu'à une formation planifiée");
+        }
+
+        formation.setFormateur(formateur);
+        formateur.getFormations().add(formation);
+        formateurRepository.save(formateur);
+        formationRepository.save(formation);
+    }
+
+    @Override
+    @Transactional
+    public void removeFromFormation(Long formateurId, Long formationId) {
+        logger.info("Removing formateur {} from formation {}", formateurId, formationId);
+        Formateur formateur = formateurRepository.findById(formateurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+
+        Formation formation = formationRepository.findById(formationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
+
+        if (formation.getFormateur() == null || !formation.getFormateur().getId().equals(formateurId)) {
+            throw new ValidationException("Le formateur n'est pas assigné à cette formation");
+        }
+
+        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
+            throw new ValidationException("Le formateur ne peut être retiré que d'une formation planifiée");
+        }
+
+        formation.setFormateur(null);
+        formateur.getFormations().remove(formation);
+        formateurRepository.save(formateur);
+        formationRepository.save(formation);
     }
 }

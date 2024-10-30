@@ -9,7 +9,6 @@ import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.FormateurRepository;
 import com.formation.services.interfaces.IClasseService;
-import com.formation.services.interfaces.IApprenantService;
 import com.formation.utils.ClasseMapper;
 import com.formation.validation.ClasseValidator;
 import com.formation.validation.exception.ValidationException;
@@ -36,7 +35,6 @@ public class ClasseServiceImpl implements IClasseService {
     private final FormateurRepository formateurRepository;
     private final ClasseMapper classeMapper;
     private final ClasseValidator classeValidator;
-    private final IApprenantService apprenantService;
 
     @Override
     public ClasseDTO save(ClasseDTO classeDTO) {
@@ -109,13 +107,42 @@ public class ClasseServiceImpl implements IClasseService {
     @Override
     @Transactional
     public void assignApprenantToClasse(Long classeId, Long apprenantId) {
-        apprenantService.assignToClasse(apprenantId, classeId);
+        logger.info("Assigning apprenant {} to classe {}", apprenantId, classeId);
+
+        Classe classe = classeRepository.findById(classeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
+
+        Apprenant apprenant = apprenantRepository.findById(apprenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+
+        if (apprenant.getClasse() != null) {
+            throw new ValidationException("L'apprenant est déjà assigné à une classe");
+        }
+
+        apprenant.setClasse(classe);
+        apprenantRepository.save(apprenant);
     }
 
     @Override
     @Transactional
     public void removeApprenantFromClasse(Long classeId, Long apprenantId) {
-        apprenantService.removeFromClasse(apprenantId);
+        logger.info("Removing apprenant {} from classe {}", apprenantId, classeId);
+
+        Apprenant apprenant = apprenantRepository.findById(apprenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+
+        Classe classe = classeRepository.findById(classeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
+
+        if (apprenant.getClasse() == null || !apprenant.getClasse().getId().equals(classeId)) {
+            throw new ValidationException("L'apprenant n'est pas assigné à cette classe");
+        }
+
+        apprenant.setClasse(null);
+        classe.getApprenants().remove(apprenant);
+
+        apprenantRepository.save(apprenant);
+        classeRepository.save(classe);
     }
 
     @Override

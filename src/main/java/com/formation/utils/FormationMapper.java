@@ -2,6 +2,8 @@ package com.formation.utils;
 
 import com.formation.dto.FormationDTO;
 import com.formation.models.Formation;
+import com.formation.models.Apprenant;
+
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.FormateurRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,10 @@ public class FormationMapper {
     private final ApprenantRepository apprenantRepository;
 
     public FormationDTO toDTO(Formation formation) {
+        if (formation == null) {
+            return null;
+        }
+
         return FormationDTO.builder()
                 .id(formation.getId())
                 .titre(formation.getTitre())
@@ -28,34 +34,32 @@ public class FormationMapper {
                 .dateFin(formation.getDateFin())
                 .statut(formation.getStatut())
                 .formateurId(formation.getFormateur() != null ? formation.getFormateur().getId() : null)
-                .apprenantIds(formation.getApprenants().stream()
-                        .map(apprenant -> apprenant.getId())
-                        .collect(Collectors.toSet()))
+                .apprenantIds(formation.getApprenants() != null ? formation.getApprenants().stream()
+                        .map(Apprenant::getId)
+                        .collect(Collectors.toSet()) : new HashSet<>())
                 .build();
     }
 
     public Formation toEntity(FormationDTO dto) {
-        Formation formation = Formation.builder()
-                .id(dto.getId())
-                .titre(dto.getTitre())
-                .niveau(dto.getNiveau())
-                .prerequis(dto.getPrerequis())
-                .capaciteMin(dto.getCapaciteMin())
-                .capaciteMax(dto.getCapaciteMax())
-                .dateDebut(dto.getDateDebut())
-                .dateFin(dto.getDateFin())
-                .statut(dto.getStatut())
-                .apprenants(new HashSet<>())
-                .build();
+        if (dto == null) {
+            return null;
+        }
+
+        Formation formation = new Formation();
+        formation.setId(dto.getId());
+        formation.setTitre(dto.getTitre());
+        formation.setNiveau(dto.getNiveau());
+        formation.setPrerequis(dto.getPrerequis());
+        formation.setCapaciteMin(dto.getCapaciteMin());
+        formation.setCapaciteMax(dto.getCapaciteMax());
+        formation.setDateDebut(dto.getDateDebut());
+        formation.setDateFin(dto.getDateFin());
+        formation.setStatut(dto.getStatut());
+        formation.setApprenants(new HashSet<>());
 
         if (dto.getFormateurId() != null) {
             formateurRepository.findById(dto.getFormateurId())
                     .ifPresent(formation::setFormateur);
-        }
-
-        if (dto.getApprenantIds() != null) {
-            apprenantRepository.findAllById(dto.getApprenantIds())
-                    .forEach(apprenant -> formation.getApprenants().add(apprenant));
         }
 
         return formation;

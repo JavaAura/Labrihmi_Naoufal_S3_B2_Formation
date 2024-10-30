@@ -40,36 +40,33 @@ public class ClasseMapper {
                 .build();
     }
 
-    public Classe toEntity(ClasseDTO classeDTO) {
-        if (classeDTO == null) {
+    public Classe toEntity(ClasseDTO dto) {
+        if (dto == null) {
             logger.debug("Converting null DTO to null Classe");
             return null;
         }
 
-        logger.debug("Converting ClasseDTO to Entity {}", classeDTO.getNom());
+        logger.debug("Converting ClasseDTO to Entity {}", dto.getNom());
         return Classe.builder()
-                .id(classeDTO.getId())
-                .nom(classeDTO.getNom() != null ? classeDTO.getNom().trim() : null)
-                .numSalle(classeDTO.getNumSalle() != null ? classeDTO.getNumSalle().trim() : null)
-                .apprenants(new HashSet<>())
-                .formateurs(new HashSet<>())
+                .id(dto.getId())
+                .nom(dto.getNom() != null ? dto.getNom().trim() : null)
+                .numSalle(dto.getNumSalle() != null ? dto.getNumSalle().trim() : null)
                 .build();
     }
 
-    public void updateClasseFromDTO(ClasseDTO classeDTO, Classe classe) {
-        if (classeDTO == null) {
+    public void updateClasseFromDTO(ClasseDTO dto, Classe classe) {
+        if (dto == null) {
             logger.warn("Attempt to update Classe with null DTO");
             return;
         }
 
         logger.debug("Updating Classe {} with DTO data", classe.getId());
-
-        Optional.ofNullable(classeDTO.getNom())
-                .map(String::trim)
-                .ifPresent(classe::setNom);
-
-        Optional.ofNullable(classeDTO.getNumSalle())
-                .map(String::trim)
-                .ifPresent(classe::setNumSalle);
+        
+        if (dto.getNom() != null) {
+            classe.setNom(dto.getNom().trim());
+        }
+        if (dto.getNumSalle() != null) {
+            classe.setNumSalle(dto.getNumSalle().trim());
+        }
     }
 }

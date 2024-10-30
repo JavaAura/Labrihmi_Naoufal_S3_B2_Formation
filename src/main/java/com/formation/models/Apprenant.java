@@ -4,10 +4,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,13 +36,17 @@ public class Apprenant {
     @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "Le niveau est obligatoire")
     private String niveau;
 
-    @ManyToMany(mappedBy = "apprenants")
+    @ManyToMany(mappedBy = "apprenants", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
     private Set<Formation> formations = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classe_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Classe classe;
 }

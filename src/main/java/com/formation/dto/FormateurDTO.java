@@ -21,13 +21,13 @@ public class FormateurDTO {
     @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
 
-    @Email(message = "L'email doit être valide")
     @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "L'email doit être valide")
     private String email;
 
     @NotBlank(message = "La spécialité est obligatoire")
     private String specialite;
 
-    private Long classeId;
     private Set<Long> formationIds;
+    private Long classeId;
 }
