@@ -1,0 +1,162 @@
+{
+    "info": {
+      "name": "Formateur API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create Formateur",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/formateurs",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"nom\": \"Martin\", \"prenom\": \"Pierre\", \"email\": \"pierre.martin@formation.com\", \"specialite\": \"JAVA\", \"disponible\": true}"
+          }
+        }
+      },
+      {
+        "name": "Update Formateur",
+        "request": {
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/formateurs/1",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"nom\": \"Martin Updated\", \"prenom\": \"Pierre\", \"email\": \"pierre.martin@formation.com\", \"specialite\": \"JAVA\", \"disponible\": false}"
+          }
+        }
+      },
+      {
+        "name": "Delete Formateur",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/formateurs/1"
+        }
+      },
+      {
+        "name": "Get Formateur by ID",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formateurs/1"
+        }
+      },
+      {
+        "name": "Get All Formateurs",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formateurs"
+        }
+      },
+      {
+        "name": "Get Formateurs Paginated",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/formateurs/page?page=0&size=10&sort=nom,asc",
+            "host": ["{{baseUrl}}"],
+            "path": ["api", "formateurs", "page"],
+            "query": [
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "10"
+              },
+              {
+                "key": "sort",
+                "value": "nom,asc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Get Formateur by Email",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formateurs/email/pierre.martin@formation.com"
+        }
+      },
+      {
+        "name": "Get Formateurs by Specialite",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formateurs/specialite/JAVA"
+        }
+      },
+      {
+        "name": "Search Formateurs",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/formateurs/search?term=Martin&page=0&size=10",
+            "host": ["{{baseUrl}}"],
+            "path": ["api", "formateurs", "search"],
+            "query": [
+              {
+                "key": "term",
+                "value": "Martin"
+              },
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Assign Formateur to Classe",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/formateurs/1/classes/1"
+        }
+      },
+      {
+        "name": "Remove Formateur from Classe",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/formateurs/1/classes"
+        }
+      },
+      {
+        "name": "Assign Formateur to Formation",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/formateurs/1/formations/1"
+        }
+      },
+      {
+        "name": "Remove Formateur from Formation",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/formateurs/1/formations/1"
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }
