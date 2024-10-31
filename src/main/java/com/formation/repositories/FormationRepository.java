@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FormationRepository extends JpaRepository<Formation, Long> {
@@ -29,4 +30,12 @@ public interface FormationRepository extends JpaRepository<Formation, Long> {
 
     @Query("SELECT f FROM Formation f WHERE f.niveau = :niveau AND f.statut = 'PLANIFIEE'")
     List<Formation> findPlannedFormationsByNiveau(@Param("niveau") String niveau);
+
+    @Query("SELECT f FROM Formation f WHERE f.statut = :statut AND f.dateDebut > CURRENT_DATE")
+    Page<Formation> findUpcomingFormationsByStatus(@Param("statut") FormationStatus statut, Pageable pageable);
+
+    @Query("SELECT f FROM Formation f WHERE SIZE(f.apprenants) < f.capaciteMax AND f.statut = 'PLANIFIEE'")
+    List<Formation> findAvailableFormations();
+
+    Optional<Formation> findByTitreAndDateDebut(String titre, LocalDateTime dateDebut);
 }

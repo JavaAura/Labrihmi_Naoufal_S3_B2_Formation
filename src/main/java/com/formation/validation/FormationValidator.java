@@ -1,6 +1,8 @@
 package com.formation.validation;
 
 import com.formation.dto.FormationDTO;
+import com.formation.models.Apprenant;
+import com.formation.models.Formation;
 import com.formation.models.FormationStatus;
 import com.formation.repositories.FormateurRepository;
 import com.formation.validation.exception.ValidationException;
@@ -109,6 +111,31 @@ public class FormationValidator {
         }
         if (!formateurRepository.existsById(formation.getFormateurId())) {
             throw new ValidationException("Le formateur spécifié n'existe pas");
+        }
+    }
+
+    public void validateAddApprenant(Formation formation, Apprenant apprenant) {
+        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
+            throw new ValidationException("Les apprenants ne peuvent être ajoutés qu'aux formations planifiées");
+        }
+
+        if (formation.getApprenants().size() >= formation.getCapaciteMax()) {
+            throw new ValidationException("La formation a atteint sa capacité maximale");
+        }
+
+        if (formation.getApprenants().contains(apprenant)) {
+            throw new ValidationException("L'apprenant est déjà inscrit à cette formation");
+        }
+
+        if (apprenant.getFormations().stream()
+                .anyMatch(f -> f.getStatut() == FormationStatus.EN_COURS)) {
+            throw new ValidationException("L'apprenant ne peut pas être inscrit car il est déjà en formation");
+        }
+
+        if (formation.getNiveau() != null && apprenant.getNiveau() != null &&
+                !formation.getNiveau().equals(apprenant.getNiveau())) {
+            throw new ValidationException(
+                    "Le niveau de l'apprenant ne correspond pas au niveau requis pour la formation");
         }
     }
 }

@@ -2,6 +2,8 @@ package com.formation.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -13,7 +15,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig {
+@EnableWebMvc
+public class SwaggerConfig implements WebMvcConfigurer {
 
     @Bean
     public Docket api() {
@@ -27,12 +30,10 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("API de Gestion de Formation")
-                .description("API REST pour la gestion des formations, apprenants, formateurs et classes")
+                .title("Formation API Documentation")
+                .description("API de gestion des formations, apprenants et formateurs")
                 .version("1.0")
-                .contact(new Contact("Formation Team", "", "contact@formation.com"))
-                .license("Apache License Version 2.0")
-                .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
+                .contact(new Contact("Formation Team", "https://formation.com", "contact@formation.com"))
                 .build();
     }
 }

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ClasseServiceImpl implements IClasseService {
     private static final Logger logger = LoggerFactory.getLogger(ClasseServiceImpl.class);
 
@@ -37,18 +37,20 @@ public class ClasseServiceImpl implements IClasseService {
     private final ClasseValidator classeValidator;
 
     @Override
+    @Transactional
     public ClasseDTO save(ClasseDTO classeDTO) {
         logger.info("Saving new classe: {}", classeDTO.getNom());
         classeValidator.validateForCreate(classeDTO);
         Classe classe = classeMapper.toEntity(classeDTO);
-        classe = classeRepository.save(classe);
-        return classeMapper.toDTO(classe);
+        return classeMapper.toDTO(classeRepository.save(classe));
     }
 
     @Override
+    @Transactional
     public ClasseDTO update(Long id, ClasseDTO classeDTO) {
         logger.info("Updating classe with id: {}", id);
         classeValidator.validateForUpdate(id, classeDTO);
+
         return classeRepository.findById(id)
                 .map(existingClasse -> {
                     classeMapper.updateClasseFromDTO(classeDTO, existingClasse);
@@ -58,6 +60,7 @@ public class ClasseServiceImpl implements IClasseService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         logger.info("Deleting classe with id: {}", id);
         Optional<Classe> classeOptional = classeRepository.findById(id);
@@ -108,16 +111,13 @@ public class ClasseServiceImpl implements IClasseService {
     @Transactional
     public void assignApprenantToClasse(Long classeId, Long apprenantId) {
         logger.info("Assigning apprenant {} to classe {}", apprenantId, classeId);
+        classeValidator.validateAssignApprenant(classeId, apprenantId);
 
         Classe classe = classeRepository.findById(classeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
 
         Apprenant apprenant = apprenantRepository.findById(apprenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
-
-        if (apprenant.getClasse() != null) {
-            throw new ValidationException("L'apprenant est déjà assigné à une classe");
-        }
 
         apprenant.setClasse(classe);
         apprenantRepository.save(apprenant);
@@ -126,41 +126,51 @@ public class ClasseServiceImpl implements IClasseService {
     @Override
     @Transactional
     public void removeApprenantFromClasse(Long classeId, Long apprenantId) {
-        logger.info("Removing apprenant {} from classe {}", apprenantId, classeId);
+        try {
+            logger.info("Removing apprenant {} from classe {}", apprenantId, classeId);
+            classeValidator.validateRemoveApprenant(classeId, apprenantId);
 
-        Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+            Apprenant apprenant = apprenantRepository.findById(apprenantId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
 
-        Classe classe = classeRepository.findById(classeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
+            if (apprenant.getClasse() == null || !apprenant.getClasse().getId().equals(classeId)) {
+                throw new ValidationException("L'apprenant n'est pas assigné à cette classe");
+            }
 
-        if (apprenant.getClasse() == null || !apprenant.getClasse().getId().equals(classeId)) {
-            throw new ValidationException("L'apprenant n'est pas assigné à cette classe");
+            apprenant.setClasse(null);
+            apprenantRepository.save(apprenant);
+        } catch (ResourceNotFoundException | ValidationException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error while removing apprenant from classe: {}", e.getMessage());
+            throw new ValidationException("Erreur lors du retrait de l'apprenant de la classe: " + e.getMessage());
         }
-
-        apprenant.setClasse(null);
-        classe.getApprenants().remove(apprenant);
-
-        apprenantRepository.save(apprenant);
-        classeRepository.save(classe);
     }
 
     @Override
     @Transactional
     public void assignFormateurToClasse(Long classeId, Long formateurId) {
-        logger.info("Assigning formateur {} to classe {}", formateurId, classeId);
-        Classe classe = classeRepository.findById(classeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
+        try {
+            logger.info("Assigning formateur {} to classe {}", formateurId, classeId);
 
-        Formateur formateur = formateurRepository.findById(formateurId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+            Classe classe = classeRepository.findById(classeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
 
-        if (formateur.getClasse() != null) {
-            throw new ValidationException("Le formateur est déjà assigné à une classe");
+            Formateur formateur = formateurRepository.findById(formateurId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+
+            if (formateur.getClasse() != null) {
+                throw new ValidationException("Le formateur est déjà assigné à une classe");
+            }
+
+            formateur.setClasse(classe);
+            formateurRepository.save(formateur);
+        } catch (ResourceNotFoundException | ValidationException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error while assigning formateur to classe: {}", e.getMessage());
+            throw new ValidationException("Erreur lors de l'assignation du formateur à la classe: " + e.getMessage());
         }
-
-        formateur.setClasse(classe);
-        formateurRepository.save(formateur);
     }
 
     @Override

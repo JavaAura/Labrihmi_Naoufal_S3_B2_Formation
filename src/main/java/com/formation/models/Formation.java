@@ -15,18 +15,26 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import javax.validation.constraints.Size;
+import javax.validation.constraints.Future;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "formations")
+@EntityListeners(AuditingEntityListener.class)
 public class Formation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Le titre est obligatoire")
+    @Size(min = 3, max = 100)
     private String titre;
 
     @NotBlank(message = "Le niveau est obligatoire")
@@ -41,9 +49,11 @@ public class Formation {
     private int capaciteMax;
 
     @NotNull(message = "La date de début est obligatoire")
+    @Future
     private LocalDateTime dateDebut;
 
     @NotNull(message = "La date de fin est obligatoire")
+    @Future
     private LocalDateTime dateFin;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,4 +72,27 @@ public class Formation {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Le statut est obligatoire")
     private FormationStatus statut;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

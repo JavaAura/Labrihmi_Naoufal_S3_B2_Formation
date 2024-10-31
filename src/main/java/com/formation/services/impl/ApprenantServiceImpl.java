@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ApprenantServiceImpl implements IApprenantService {
     private static final Logger logger = LoggerFactory.getLogger(ApprenantServiceImpl.class);
 
@@ -43,19 +43,24 @@ public class ApprenantServiceImpl implements IApprenantService {
         apprenantValidator.validateForCreate(apprenantDTO);
         Apprenant apprenant = apprenantMapper.toEntity(apprenantDTO);
         apprenant = apprenantRepository.save(apprenant);
-        return apprenantMapper.toDTO(apprenant);
+        ApprenantDTO savedDTO = apprenantMapper.toDTO(apprenant);
+        logger.debug("Saved apprenant with ID: {}", savedDTO.getId());
+        return savedDTO;
     }
 
     @Override
+    @Transactional
     public ApprenantDTO update(Long id, ApprenantDTO apprenantDTO) {
         logger.info("Updating apprenant with id: {}", id);
         apprenantValidator.validateForUpdate(id, apprenantDTO);
+
         return apprenantRepository.findById(id)
                 .map(existingApprenant -> {
                     apprenantMapper.updateApprenantFromDTO(apprenantDTO, existingApprenant);
-                    return apprenantMapper.toDTO(apprenantRepository.save(existingApprenant));
+                    Apprenant savedApprenant = apprenantRepository.save(existingApprenant);
+                    return apprenantMapper.toDTO(savedApprenant);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Apprenant non trouvé avec l'id: " + id));
     }
 
     @Override

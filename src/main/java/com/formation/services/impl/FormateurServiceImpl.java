@@ -1,6 +1,7 @@
 package com.formation.services.impl;
 
 import com.formation.dto.FormateurDTO;
+import com.formation.exceptions.BadRequestException;
 import com.formation.exceptions.ResourceNotFoundException;
 import com.formation.models.Classe;
 import com.formation.models.Formateur;
@@ -27,35 +28,61 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true) 
 public class FormateurServiceImpl implements IFormateurService {
     private static final Logger logger = LoggerFactory.getLogger(FormateurServiceImpl.class);
 
     private final FormateurRepository formateurRepository;
     private final ClasseRepository classeRepository;
+    private final FormationRepository formationRepository;
     private final FormateurMapper formateurMapper;
     private final FormateurValidator formateurValidator;
-    private final FormationRepository formationRepository;
 
     @Override
+    @Transactional
     public FormateurDTO save(FormateurDTO formateurDTO) {
         logger.info("Saving new formateur: {}", formateurDTO.getEmail());
         formateurValidator.validateForCreate(formateurDTO);
         Formateur formateur = formateurMapper.toEntity(formateurDTO);
-        formateur = formateurRepository.save(formateur);
-        return formateurMapper.toDTO(formateur);
+        return formateurMapper.toDTO(formateurRepository.save(formateur));
     }
 
     @Override
+    @Transactional
     public FormateurDTO update(Long id, FormateurDTO formateurDTO) {
         logger.info("Updating formateur with id: {}", id);
         formateurValidator.validateForUpdate(id, formateurDTO);
+        
         return formateurRepository.findById(id)
                 .map(existingFormateur -> {
                     formateurMapper.updateFormateurFromDTO(formateurDTO, existingFormateur);
                     return formateurMapper.toDTO(formateurRepository.save(existingFormateur));
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Formateur", "id", id));
+    }
+
+    @Override
+    @Transactional
+    public void assignToFormation(Long formateurId, Long formationId) {
+        logger.info("Assigning formateur {} to formation {}", formateurId, formationId);
+        Formateur formateur = formateurRepository.findById(formateurId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formateur", "id", formateurId));
+
+        Formation formation = formationRepository.findById(formationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Formation", "id", formationId));
+
+        if (formation.getFormateur() != null) {
+            throw new BadRequestException("La formation a déjà un formateur assigné", "formationId", formationId);
+        }
+
+        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
+            throw new BadRequestException("Le formateur ne peut être assigné qu'à une formation planifiée", 
+                "status", formation.getStatut());
+        }
+
+        formation.setFormateur(formateur);
+        formateur.getFormations().add(formation);
+        formateurRepository.save(formateur);
     }
 
     @Override
@@ -135,30 +162,6 @@ public class FormateurServiceImpl implements IFormateurService {
 
         formateur.setClasse(null);
         formateurRepository.save(formateur);
-    }
-
-    @Override
-    @Transactional
-    public void assignToFormation(Long formateurId, Long formationId) {
-        logger.info("Assigning formateur {} to formation {}", formateurId, formationId);
-        Formateur formateur = formateurRepository.findById(formateurId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
-
-        Formation formation = formationRepository.findById(formationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
-
-        if (formation.getFormateur() != null) {
-            throw new ValidationException("La formation a déjà un formateur assigné");
-        }
-
-        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
-            throw new ValidationException("Le formateur ne peut être assigné qu'à une formation planifiée");
-        }
-
-        formation.setFormateur(formateur);
-        formateur.getFormations().add(formation);
-        formateurRepository.save(formateur);
-        formationRepository.save(formation);
     }
 
     @Override

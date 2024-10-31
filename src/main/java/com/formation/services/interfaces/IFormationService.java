@@ -41,4 +41,13 @@ public interface IFormationService {
     Page<FormationDTO> searchByTitre(String titre, Pageable pageable);
 
     boolean isFormationFull(Long formationId);
+
+    /**
+     * Find upcoming formations by status with pagination
+     * 
+     * @param statut   the formation status to filter by
+     * @param pageable pagination information
+     * @return Page of FormationDTO
+     */
+    Page<FormationDTO> findUpcomingFormations(FormationStatus statut, Pageable pageable);
 }

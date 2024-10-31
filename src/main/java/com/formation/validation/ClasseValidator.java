@@ -1,6 +1,7 @@
 package com.formation.validation;
 
 import com.formation.dto.ClasseDTO;
+import com.formation.models.FormationStatus;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormateurRepository;
@@ -116,5 +117,39 @@ public class ClasseValidator implements EntityValidator<ClasseDTO> {
                         "Le formateur avec l'ID " + formateurId + " est déjà assigné à une classe");
             }
         }
+    }
+
+    public void validateAssignApprenant(Long classeId, Long apprenantId) {
+        if (classeId == null || apprenantId == null) {
+            throw new ValidationException("Les IDs de la classe et de l'apprenant sont obligatoires");
+        }
+
+        // Validate class capacity
+        classeRepository.findById(classeId).ifPresent(classe -> {
+            if (classe.getApprenants().size() >= 30) { // Assuming max capacity is 30
+                throw new ValidationException("La classe a atteint sa capacité maximale");
+            }
+        });
+
+        // Validate apprenant's current status
+        apprenantRepository.findById(apprenantId).ifPresent(apprenant -> {
+            if (apprenant.getFormations().stream()
+                    .anyMatch(f -> f.getStatut() == FormationStatus.EN_COURS)) {
+                throw new ValidationException("L'apprenant ne peut pas être assigné car il est en formation");
+            }
+        });
+    }
+
+    public void validateRemoveApprenant(Long classeId, Long apprenantId) {
+        if (classeId == null || apprenantId == null) {
+            throw new ValidationException("Les IDs de la classe et de l'apprenant sont obligatoires");
+        }
+
+        apprenantRepository.findById(apprenantId).ifPresent(apprenant -> {
+            if (apprenant.getFormations().stream()
+                    .anyMatch(f -> f.getStatut() == FormationStatus.EN_COURS)) {
+                throw new ValidationException("L'apprenant ne peut pas être retiré car il est en formation");
+            }
+        });
     }
 }

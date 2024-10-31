@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class FormationServiceImpl implements IFormationService {
     private static final Logger logger = LoggerFactory.getLogger(FormationServiceImpl.class);
 
@@ -36,12 +36,17 @@ public class FormationServiceImpl implements IFormationService {
     private final FormationValidator formationValidator;
 
     @Override
+    @Transactional
     public FormationDTO save(FormationDTO formationDTO) {
         logger.info("Saving new formation: {}", formationDTO.getTitre());
-        formationValidator.validateForCreate(formationDTO);
-        Formation formation = formationMapper.toEntity(formationDTO);
-        formation = formationRepository.save(formation);
-        return formationMapper.toDTO(formation);
+        return Optional.of(formationDTO)
+                .map(dto -> {
+                    formationValidator.validateForCreate(dto);
+                    Formation formation = formationMapper.toEntity(dto);
+                    return formationRepository.save(formation);
+                })
+                .map(formationMapper::toDTO)
+                .orElseThrow(() -> new ValidationException("Erreur lors de la sauvegarde de la formation"));
     }
 
     @Override
@@ -117,24 +122,24 @@ public class FormationServiceImpl implements IFormationService {
     @Transactional
     public boolean addApprenantToFormation(Long formationId, Long apprenantId) {
         logger.info("Adding apprenant {} to formation {}", apprenantId, formationId);
-        Formation formation = formationRepository.findById(formationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
+        try {
+            Formation formation = formationRepository.findById(formationId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Formation", "id", formationId));
 
-        formationValidator.validateStatusTransition(formation.getStatut(), formation.getStatut());
+            Apprenant apprenant = apprenantRepository.findById(apprenantId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Apprenant", "id", apprenantId));
 
-        FormationDTO formationDTO = formationMapper.toDTO(formation);
-        formationValidator.validateCapacities(formationDTO);
+            formationValidator.validateAddApprenant(formation, apprenant);
 
-        if (formation.getApprenants().size() >= formation.getCapaciteMax()) {
-            throw new ValidationException("La formation a atteint sa capacité maximale");
+            formation.getApprenants().add(apprenant);
+            formationRepository.save(formation);
+            return true;
+        } catch (ResourceNotFoundException | ValidationException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error while adding apprenant to formation: ", e);
+            throw new ValidationException("Erreur lors de l'ajout de l'apprenant à la formation");
         }
-
-        Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
-
-        formation.getApprenants().add(apprenant);
-        formationRepository.save(formation);
-        return true;
     }
 
     @Override
@@ -189,5 +194,30 @@ public class FormationServiceImpl implements IFormationService {
         return formationRepository.findById(formationId)
                 .map(formation -> formation.getApprenants().size() >= formation.getCapaciteMax())
                 .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<FormationDTO> findUpcomingFormations(FormationStatus statut, Pageable pageable) {
+        logger.info("Finding upcoming formations with status: {}", statut);
+
+        if (statut == null) {
+            throw new ValidationException("Le statut est obligatoire");
+        }
+
+        if (pageable == null) {
+            throw new ValidationException("Les informations de pagination sont obligatoires");
+        }
+
+        try {
+            Page<Formation> formations = formationRepository.findUpcomingFormationsByStatus(statut, pageable);
+            if (formations.isEmpty()) {
+                logger.info("No upcoming formations found with status: {}", statut);
+            }
+            return formations.map(formationMapper::toDTO);
+        } catch (Exception e) {
+            logger.error("Error while fetching upcoming formations with status {}: {}", statut, e.getMessage());
+            throw new ValidationException("Erreur lors de la récupération des formations à venir: " + e.getMessage());
+        }
     }
 }
