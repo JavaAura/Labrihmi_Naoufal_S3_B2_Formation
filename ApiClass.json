@@ -1,0 +1,204 @@
+{
+    "info": {
+      "name": "Classe API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create Classe",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/classes",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"nom\": \"Classe Java\", \"numSalle\": \"101\"}"
+          }
+        }
+      },
+      {
+        "name": "Update Classe",
+        "request": {
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/classes/1",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"nom\": \"Classe Java Updated\", \"numSalle\": \"102\"}"
+          }
+        }
+      },
+      {
+        "name": "Delete Classe",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/classes/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Get All Classes",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/classes?page=0&size=10&sort=nom,asc",
+            "host": ["{{baseUrl}}"],
+            "path": ["api", "classes"],
+            "query": [
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "10"
+              },
+              {
+                "key": "sort",
+                "value": "nom,asc"
+              }
+            ]
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Get Classe by ID",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/classes/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Search Classes by Name",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/classes/search?nom=Java",
+            "host": ["{{baseUrl}}"],
+            "path": ["api", "classes", "search"],
+            "query": [
+              {
+                "key": "nom",
+                "value": "Java"
+              }
+            ]
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Get Available Classes",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/classes/available?maxCapacity=20",
+            "host": ["{{baseUrl}}"],
+            "path": ["api", "classes", "available"],
+            "query": [
+              {
+                "key": "maxCapacity",
+                "value": "20"
+              }
+            ]
+          },
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Assign Apprenant to Classe",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/classes/1/apprenants/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Remove Apprenant from Classe",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/classes/1/apprenants/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Assign Formateur to Classe",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/classes/1/formateurs/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Remove Formateur from Classe",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/classes/1/formateurs/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }
