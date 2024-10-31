@@ -1,0 +1,162 @@
+{
+  "info": {
+    "name": "Apprenant API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Apprenant",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/apprenants",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nom\": \"Dupont\", \"prenom\": \"Jean\", \"email\": \"jean.dupont@email.com\", \"niveau\": \"DEBUTANT\", \"formationIds\": [1, 2], \"classeId\": 1}"
+        }
+      }
+    },
+    {
+      "name": "Update Apprenant",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/apprenants/1",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nom\": \"Dupont Updated\", \"prenom\": \"Jean\", \"email\": \"jean.dupont@email.com\", \"niveau\": \"INTERMEDIAIRE\", \"formationIds\": [1, 2, 3], \"classeId\": 2}"
+        }
+      }
+    },
+    {
+      "name": "Delete Apprenant",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/apprenants/1"
+      }
+    },
+    {
+      "name": "Get Apprenant by ID",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/apprenants/1"
+      }
+    },
+    {
+      "name": "Get All Apprenants (Paginated)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/apprenants?page=0&size=10&sort=nom,asc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "apprenants"],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "nom,asc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Search Apprenants",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/apprenants/search?term=Dupont&page=0&size=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "apprenants", "search"],
+          "query": [
+            {
+              "key": "term",
+              "value": "Dupont"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Apprenants by Niveau",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/apprenants/niveau/DEBUTANT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ]
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/apprenants/niveau/DEBUTANT"
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "success": true,
+            "message": "Liste des apprenants récupérée avec succès",
+            "data": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assign to Formation",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/apprenants/1/formations/1"
+      }
+    },
+    {
+      "name": "Remove from Formation",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/apprenants/1/formations/1"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ]
+}
