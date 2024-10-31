@@ -1,0 +1,209 @@
+{
+    "info": {
+      "name": "Formation API Tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create Formation",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/formations",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"titre\": \"Formation Java Spring\", \"niveau\": \"INTERMEDIAIRE\", \"prerequis\": \"Connaissances en Java\", \"capaciteMin\": 5, \"capaciteMax\": 20, \"dateDebut\": \"2024-12-31T09:00:00\", \"dateFin\": \"2025-01-31T17:00:00\", \"formateurId\": 1, \"statut\": \"PLANIFIEE\"}"
+          }
+        }
+      },
+      {
+        "name": "Update Formation",
+        "request": {
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/formations/1",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"titre\": \"Formation Java Spring Updated\", \"niveau\": \"AVANCE\", \"prerequis\": \"Connaissances avancées en Java\", \"capaciteMin\": 5, \"capaciteMax\": 20, \"dateDebut\": \"2024-12-31T09:00:00\", \"dateFin\": \"2025-01-31T17:00:00\", \"formateurId\": 1, \"statut\": \"EN_COURS\"}"
+          }
+        }
+      },
+      {
+        "name": "Delete Formation",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/formations/1"
+        }
+      },
+      {
+        "name": "Get Formation by ID",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/1"
+        }
+      },
+      {
+        "name": "Get All Formations Paginated",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/formations?page=0&size=10&sort=titre,asc",
+            "query": [
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "10"
+              },
+              {
+                "key": "sort",
+                "value": "titre,asc"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Get All Formations",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/all"
+        }
+      },
+      {
+        "name": "Get Formations by Status",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/status/EN_COURS"
+        }
+      },
+      {
+        "name": "Get Formations Between Dates",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/formations/dates?debut=2024-01-01T00:00:00&fin=2024-12-31T23:59:59",
+            "query": [
+              {
+                "key": "debut",
+                "value": "2024-01-01T00:00:00"
+              },
+              {
+                "key": "fin",
+                "value": "2024-12-31T23:59:59"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Get Formations by Formateur",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/formateur/1"
+        }
+      },
+      {
+        "name": "Get Available Formations",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/available"
+        }
+      },
+      {
+        "name": "Add Apprenant to Formation",
+        "request": {
+          "method": "POST",
+          "url": "{{baseUrl}}/api/apprenants/1/formations/1",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "description": "Assign an apprenant to a formation using ApprenantController endpoint"
+        }
+      },
+      {
+        "name": "Remove Apprenant from Formation",
+        "request": {
+          "method": "DELETE",
+          "url": "{{baseUrl}}/api/apprenants/1/formations/1",
+          "header": [
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "description": "Remove an apprenant from a formation using ApprenantController endpoint"
+        }
+      },
+      {
+        "name": "Update Formation Status",
+        "request": {
+          "method": "PUT",
+          "url": "{{baseUrl}}/api/formations/1/status/EN_COURS"
+        }
+      },
+      {
+        "name": "Get Formations by Niveau",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/niveau/INTERMEDIAIRE"
+        }
+      },
+      {
+        "name": "Search Formations by Title",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "{{baseUrl}}/api/formations/search?titre=Java&page=0&size=10",
+            "query": [
+              {
+                "key": "titre",
+                "value": "Java"
+              },
+              {
+                "key": "page",
+                "value": "0"
+              },
+              {
+                "key": "size",
+                "value": "10"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "Check if Formation is Full",
+        "request": {
+          "method": "GET",
+          "url": "{{baseUrl}}/api/formations/1/full"
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }
