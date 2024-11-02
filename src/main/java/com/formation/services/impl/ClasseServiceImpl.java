@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class ClasseServiceImpl implements IClasseService {
     private static final Logger logger = LoggerFactory.getLogger(ClasseServiceImpl.class);
 
@@ -72,11 +72,13 @@ public class ClasseServiceImpl implements IClasseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ClasseDTO> findById(Long id) {
         return classeRepository.findById(id).map(classeMapper::toDTO);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClasseDTO> findAll() {
         return classeRepository.findAll().stream()
                 .map(classeMapper::toDTO)
@@ -84,6 +86,7 @@ public class ClasseServiceImpl implements IClasseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ClasseDTO> findAll(Pageable pageable) {
         return classeRepository.findAll(pageable).map(classeMapper::toDTO);
     }
