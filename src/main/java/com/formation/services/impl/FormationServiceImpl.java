@@ -4,9 +4,12 @@ import com.formation.dto.FormationDTO;
 import com.formation.exceptions.ResourceNotFoundException;
 import com.formation.models.Apprenant;
 import com.formation.models.Formation;
+import com.formation.models.Formateur;
+
 import com.formation.models.FormationStatus;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.FormationRepository;
+import com.formation.repositories.FormateurRepository;
 import com.formation.services.interfaces.IFormationService;
 import com.formation.utils.FormationMapper;
 import com.formation.validation.FormationValidator;
@@ -32,22 +35,24 @@ public class FormationServiceImpl implements IFormationService {
 
     private final FormationRepository formationRepository;
     private final ApprenantRepository apprenantRepository;
+    private final FormateurRepository formateurRepository;
     private final FormationMapper formationMapper;
     private final FormationValidator formationValidator;
 
     @Override
-    @Transactional
-    public FormationDTO save(FormationDTO formationDTO) {
-        logger.info("Saving new formation: {}", formationDTO.getTitre());
-        return Optional.of(formationDTO)
-                .map(dto -> {
-                    formationValidator.validateForCreate(dto);
-                    Formation formation = formationMapper.toEntity(dto);
-                    return formationRepository.save(formation);
-                })
-                .map(formationMapper::toDTO)
-                .orElseThrow(() -> new ValidationException("Erreur lors de la sauvegarde de la formation"));
+@Transactional
+public FormationDTO save(FormationDTO formationDTO) {
+    logger.info("Saving new formation: {}", formationDTO.getTitre());
+    try {
+        formationValidator.validateForCreate(formationDTO);
+        Formation formation = formationMapper.toEntity(formationDTO);
+        Formation savedFormation = formationRepository.save(formation);
+        return formationMapper.toDTO(savedFormation);
+    } catch (Exception e) {
+        logger.error("Error while saving formation: {}", e.getMessage());
+        throw new ValidationException("Erreur lors de la sauvegarde de la formation: " + e.getMessage());
     }
+}
 
     @Override
     public FormationDTO update(Long id, FormationDTO formationDTO) {
