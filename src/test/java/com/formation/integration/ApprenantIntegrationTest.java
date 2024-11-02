@@ -6,6 +6,7 @@ import com.formation.models.Apprenant;
 import com.formation.models.Classe;
 import com.formation.models.Formation;
 import com.formation.models.FormationStatus;
+import com.formation.models.NiveauFormation;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormationRepository;
@@ -149,7 +150,7 @@ class ApprenantIntegrationTest {
     private Formation createAndSaveFormation() {
         Formation formation = Formation.builder()
                 .titre("Formation Test")
-                .niveau("DEBUTANT")
+                .niveau(NiveauFormation.DEBUTANT)
                 .capaciteMin(1)
                 .capaciteMax(20)
                 .dateDebut(LocalDateTime.now().plusDays(1))
