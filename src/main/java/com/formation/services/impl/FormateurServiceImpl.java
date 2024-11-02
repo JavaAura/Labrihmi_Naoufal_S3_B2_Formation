@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) 
+@Transactional(readOnly = true)
 public class FormateurServiceImpl implements IFormateurService {
     private static final Logger logger = LoggerFactory.getLogger(FormateurServiceImpl.class);
 
@@ -52,7 +52,7 @@ public class FormateurServiceImpl implements IFormateurService {
     public FormateurDTO update(Long id, FormateurDTO formateurDTO) {
         logger.info("Updating formateur with id: {}", id);
         formateurValidator.validateForUpdate(id, formateurDTO);
-        
+
         return formateurRepository.findById(id)
                 .map(existingFormateur -> {
                     formateurMapper.updateFormateurFromDTO(formateurDTO, existingFormateur);
@@ -76,13 +76,14 @@ public class FormateurServiceImpl implements IFormateurService {
         }
 
         if (formation.getStatut() != FormationStatus.PLANIFIEE) {
-            throw new BadRequestException("Le formateur ne peut être assigné qu'à une formation planifiée", 
-                "status", formation.getStatut());
+            throw new BadRequestException("Le formateur ne peut être assigné qu'à une formation planifiée",
+                    "status", formation.getStatut());
         }
 
         formation.setFormateur(formateur);
         formateur.getFormations().add(formation);
         formateurRepository.save(formateur);
+        formationRepository.save(formation);
     }
 
     @Override
