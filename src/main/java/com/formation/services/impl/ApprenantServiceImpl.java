@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ApprenantServiceImpl implements IApprenantService {
     private static final Logger logger = LoggerFactory.getLogger(ApprenantServiceImpl.class);
 
@@ -38,6 +37,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     private final ApprenantValidator apprenantValidator;
 
     @Override
+    @Transactional
     public ApprenantDTO save(ApprenantDTO apprenantDTO) {
         logger.info("Saving new apprenant: {}", apprenantDTO.getEmail());
         apprenantValidator.validateForCreate(apprenantDTO);
@@ -73,6 +73,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ApprenantDTO> findById(Long id) {
         return apprenantRepository.findById(id)
                 .map(apprenantMapper::toDTO);
