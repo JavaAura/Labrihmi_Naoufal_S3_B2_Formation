@@ -16,9 +16,31 @@ import java.time.LocalDateTime;
 public class FormationValidator {
     private final FormateurRepository formateurRepository;
 
-    public void validateForCreate(FormationDTO formation) {
-        validateCommon(formation);
-        validateInitialStatus(formation);
+    public void validateForCreate(FormationDTO formationDTO) {
+        if (formationDTO.getTitre() == null || formationDTO.getTitre().trim().isEmpty()) {
+            throw new ValidationException("Le titre est obligatoire");
+        }
+        if (formationDTO.getNiveau() == null) {
+            throw new ValidationException("Le niveau est obligatoire");
+        }
+        if (formationDTO.getDateDebut() == null) {
+            throw new ValidationException("La date de début est obligatoire");
+        }
+        if (formationDTO.getDateFin() == null) {
+            throw new ValidationException("La date de fin est obligatoire");
+        }
+        if (formationDTO.getDateFin().isBefore(formationDTO.getDateDebut())) {
+            throw new ValidationException("La date de fin doit être après la date de début");
+        }
+        if (formationDTO.getCapaciteMin() <= 0) {
+            throw new ValidationException("La capacité minimale doit être supérieure à 0");
+        }
+        if (formationDTO.getCapaciteMax() <= formationDTO.getCapaciteMin()) {
+            throw new ValidationException("La capacité maximale doit être supérieure à la capacité minimale");
+        }
+        if (formationDTO.getStatut() == null) {
+            throw new ValidationException("Le statut est obligatoire");
+        }
     }
 
     public void validateForUpdate(Long id, FormationDTO formation) {
@@ -94,7 +116,7 @@ public class FormationValidator {
     }
 
     private void validateNiveau(FormationDTO formation) {
-        if (formation.getNiveau() == null || formation.getNiveau().trim().isEmpty()) {
+        if (formation.getNiveau() == null) {
             throw new ValidationException("Le niveau est obligatoire");
         }
     }
