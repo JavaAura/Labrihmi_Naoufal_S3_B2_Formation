@@ -17,7 +17,7 @@
           ],
           "body": {
             "mode": "raw",
-            "raw": "{\"nom\": \"Classe Java\", \"numSalle\": \"101\"}"
+      "raw": "{\"nom\": \"Classe Java\", \"numSalle\": \"101\"}"
           }
         }
       },
