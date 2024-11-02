@@ -1,6 +1,7 @@
 package com.formation.dto;
 
 import com.formation.models.FormationStatus;
+import com.formation.models.NiveauFormation;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -25,9 +26,9 @@ public class FormationDTO {
     @ApiModelProperty(value = "Titre de la formation", example = "Formation Java Spring", required = true, position = 2)
     private String titre;
 
-    @NotBlank(message = "Le niveau est obligatoire")
+    @NotNull(message = "Le niveau est obligatoire")
     @ApiModelProperty(value = "Niveau de la formation", example = "INTERMEDIAIRE", required = true, allowableValues = "DEBUTANT,INTERMEDIAIRE,AVANCE", position = 3)
-    private String niveau;
+    private NiveauFormation niveau;
 
     @NotBlank(message = "Les prérequis sont obligatoires")
     @ApiModelProperty(value = "Prérequis pour suivre la formation", example = "Connaissances en Java", required = true, position = 4)
@@ -51,8 +52,7 @@ public class FormationDTO {
     @ApiModelProperty(value = "Date de fin de la formation", example = "2025-01-31T17:00:00", required = true, position = 8)
     private LocalDateTime dateFin;
 
-    @NotNull(message = "Le formateur est obligatoire")
-    @ApiModelProperty(value = "ID du formateur responsable", example = "1", required = true, position = 9)
+    @ApiModelProperty(value = "ID du formateur responsable", example = "1", required = false, position = 9)
     private Long formateurId;
 
     @ApiModelProperty(value = "IDs des apprenants inscrits à la formation", example = "[1, 2, 3]", position = 10)
