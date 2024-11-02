@@ -37,8 +37,9 @@ public class Formation {
     @Size(min = 3, max = 100)
     private String titre;
 
-    @NotBlank(message = "Le niveau est obligatoire")
-    private String niveau;
+    @NotNull(message = "Le niveau est obligatoire")
+    @Enumerated(EnumType.STRING)
+    private NiveauFormation niveau;
 
     private String prerequis;
 
@@ -80,19 +81,4 @@ public class Formation {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }
