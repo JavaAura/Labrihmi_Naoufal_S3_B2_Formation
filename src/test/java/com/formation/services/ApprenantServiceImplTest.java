@@ -5,6 +5,7 @@ import com.formation.models.Apprenant;
 import com.formation.models.Classe;
 import com.formation.models.Formation;
 import com.formation.models.FormationStatus;
+import com.formation.models.NiveauFormation;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormationRepository;
@@ -228,7 +229,7 @@ class ApprenantServiceImplTest {
                 .nom("Dupont")
                 .prenom("Jean")
                 .email("jean.dupont@email.com")
-                .niveau("Débutant")
+                .niveau(NiveauFormation.DEBUTANT)
                 .build();
     }
 }
