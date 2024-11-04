@@ -1,6 +1,7 @@
 package com.formation.repositories;
 
 import com.formation.models.Apprenant;
+import com.formation.models.NiveauFormation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public interface ApprenantRepository extends JpaRepository<Apprenant, Long> {
     Optional<Apprenant> findByEmail(String email);
 
-    List<Apprenant> findByNiveau(String niveau);
+    List<Apprenant> findByNiveau(NiveauFormation niveau);
 
     Page<Apprenant> findByNomContainingOrPrenomContaining(String nom, String prenom, Pageable pageable);
 

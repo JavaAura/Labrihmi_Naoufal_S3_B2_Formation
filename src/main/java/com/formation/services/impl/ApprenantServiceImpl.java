@@ -6,6 +6,7 @@ import com.formation.models.Apprenant;
 import com.formation.models.Classe;
 import com.formation.models.Formation;
 import com.formation.models.FormationStatus;
+import com.formation.models.NiveauFormation;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormationRepository;
@@ -117,7 +118,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     }
 
     @Override
-    public List<ApprenantDTO> findByNiveau(String niveau) {
+    public List<ApprenantDTO> findByNiveau(NiveauFormation niveau) {
         return apprenantRepository.findByNiveau(niveau).stream()
                 .map(apprenantMapper::toDTO)
                 .collect(Collectors.toList());

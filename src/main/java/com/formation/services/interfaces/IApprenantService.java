@@ -1,6 +1,7 @@
 package com.formation.services.interfaces;
 
 import com.formation.dto.ApprenantDTO;
+import com.formation.models.NiveauFormation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,7 +23,7 @@ public interface IApprenantService {
 
     Optional<ApprenantDTO> findByEmail(String email);
 
-    List<ApprenantDTO> findByNiveau(String niveau);
+    List<ApprenantDTO> findByNiveau(NiveauFormation niveau);
 
     List<ApprenantDTO> findByClasseId(Long classeId);
 

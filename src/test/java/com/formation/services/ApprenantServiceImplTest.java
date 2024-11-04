@@ -153,7 +153,7 @@ class ApprenantServiceImplTest {
     @Test
     void findByNiveau_ShouldReturnApprenants() {
         // Given
-        String niveau = "Débutant";
+        NiveauFormation niveau = NiveauFormation.DEBUTANT;
         List<Apprenant> apprenants = Collections.singletonList(new Apprenant());
         List<ApprenantDTO> expectedDtos = Collections.singletonList(new ApprenantDTO());
 

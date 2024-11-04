@@ -3,6 +3,7 @@ package com.formation.controllers;
 import com.formation.dto.ApprenantDTO;
 import com.formation.dto.response.ApiResponse;
 import com.formation.exceptions.ResourceNotFoundException;
+import com.formation.models.NiveauFormation;
 import com.formation.services.interfaces.IApprenantService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -130,7 +131,7 @@ public class ApprenantController {
                         @io.swagger.annotations.ApiResponse(code = 400, message = "Niveau invalide")
         })
         public ResponseEntity<ApiResponse<List<ApprenantDTO>>> findByNiveau(
-                        @ApiParam(value = "Niveau d'étude", required = true) @PathVariable String niveau) {
+                        @ApiParam(value = "Niveau d'étude", required = true) @PathVariable NiveauFormation niveau) {
                 logger.info("Fetching apprenants by niveau: {}", niveau);
                 List<ApprenantDTO> apprenants = apprenantService.findByNiveau(niveau);
                 return ResponseEntity.ok(new ApiResponse<>(true,

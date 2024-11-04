@@ -81,9 +81,10 @@ class ApprenantIntegrationTest {
     void findByNiveau_ShouldReturnApprenants() throws Exception {
         Apprenant apprenant = createAndSaveApprenant();
 
-        mockMvc.perform(get("/api/apprenants/niveau/{niveau}", apprenant.getNiveau()))
+        mockMvc.perform(get("/api/apprenants/niveau/{niveau}", NiveauFormation.DEBUTANT))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].niveau").value(apprenant.getNiveau()));
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].niveau").value(NiveauFormation.DEBUTANT.toString()));
     }
 
     @Test
@@ -158,6 +159,5 @@ class ApprenantIntegrationTest {
                 .build();
         return formationRepository.save(formation);
     }
-
 
 }
