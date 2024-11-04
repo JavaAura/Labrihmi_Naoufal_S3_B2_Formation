@@ -167,7 +167,7 @@ La documentation Swagger est accessible à:
 
 ## Diagramme UML
 
-Le diagramme UML du projet est disponible dans le fichier `UML.mdj` dans le dossier `@src` du projet.
+Le diagramme UML du projet est disponible dans le dossier `@Diagrammes` du projet.
 
 ## Auteur
 
