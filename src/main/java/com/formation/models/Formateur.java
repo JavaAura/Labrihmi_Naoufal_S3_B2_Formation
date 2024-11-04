@@ -46,4 +46,12 @@ public class Formateur {
     @ManyToOne
     @JoinColumn(name = "classe_id")
     private Classe classe;
+
+    @PreRemove
+    private void removeAssociations() {
+        if (classe != null) {
+            classe.setFormateur(null);
+        }
+        formations.forEach(formation -> formation.setFormateur(null));
+    }
 }

@@ -6,9 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.HashSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import com.formation.models.NiveauFormation;
 
 @Data
 @Builder
@@ -32,12 +35,13 @@ public class ApprenantDTO {
     @ApiModelProperty(value = "Email de l'apprenant", example = "jean.dupont@email.com", required = true, position = 4)
     private String email;
 
-    @NotBlank(message = "Le niveau est obligatoire")
-    @ApiModelProperty(value = "Niveau d'étude", example = "DEBUTANT", required = true, allowableValues = "DEBUTANT,INTERMEDIAIRE,AVANCE", position = 5)
-    private String niveau;
+    @NotNull(message = "Le niveau est obligatoire")
+    @ApiModelProperty(value = "Niveau d'étude", example = "DEBUTANT", required = true)
+    private NiveauFormation niveau;
 
-    @ApiModelProperty(value = "IDs des formations auxquelles l'apprenant est inscrit", example = "[1, 2, 3]", position = 6)
-    private Set<Long> formationIds;
+    @Builder.Default
+    @ApiModelProperty(value = "IDs des formations auxquelles l'apprenant est inscrit")
+    private Set<Long> formationIds = new HashSet<>();
 
     @ApiModelProperty(value = "ID de la classe de l'apprenant", example = "1", position = 7)
     private Long classeId;

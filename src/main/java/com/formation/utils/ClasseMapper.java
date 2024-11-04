@@ -1,7 +1,10 @@
 package com.formation.utils;
 
 import com.formation.dto.ClasseDTO;
+import com.formation.models.Apprenant;
 import com.formation.models.Classe;
+import com.formation.models.Formateur;
+
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,12 +32,12 @@ public class ClasseMapper {
                 .numSalle(classe.getNumSalle())
                 .apprenantIds(Optional.ofNullable(classe.getApprenants())
                         .map(apprenants -> apprenants.stream()
-                                .map(apprenant -> apprenant.getId())
+                                .map(Apprenant::getId)
                                 .collect(Collectors.toSet()))
                         .orElse(new HashSet<>()))
                 .formateurIds(Optional.ofNullable(classe.getFormateurs())
                         .map(formateurs -> formateurs.stream()
-                                .map(formateur -> formateur.getId())
+                                .map(Formateur::getId)
                                 .collect(Collectors.toSet()))
                         .orElse(new HashSet<>()))
                 .build();
@@ -61,7 +64,7 @@ public class ClasseMapper {
         }
 
         logger.debug("Updating Classe {} with DTO data", classe.getId());
-        
+
         if (dto.getNom() != null) {
             classe.setNom(dto.getNom().trim());
         }

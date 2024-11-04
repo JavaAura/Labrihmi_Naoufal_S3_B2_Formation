@@ -10,8 +10,6 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,4 +41,19 @@ public class Classe {
     @EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Formateur> formateurs = new HashSet<>();
+
+    @OneToOne(mappedBy = "classe")
+    private Formateur formateur;
+
+    public void setFormateur(Formateur formateur) {
+        this.formateur = formateur;
+    }
+
+    @PreRemove
+    private void removeAssociations() {
+        if (formateur != null) {
+            formateur.setClasse(null);
+        }
+        apprenants.forEach(apprenant -> apprenant.setClasse(null));
+    }
 }

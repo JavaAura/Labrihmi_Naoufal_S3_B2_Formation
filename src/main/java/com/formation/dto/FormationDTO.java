@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.HashSet;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -55,8 +56,9 @@ public class FormationDTO {
     @ApiModelProperty(value = "ID du formateur responsable", example = "1", required = false, position = 9)
     private Long formateurId;
 
-    @ApiModelProperty(value = "IDs des apprenants inscrits à la formation", example = "[1, 2, 3]", position = 10)
-    private Set<Long> apprenantIds;
+    @Builder.Default
+    @ApiModelProperty(value = "IDs des apprenants inscrits à la formation")
+    private Set<Long> apprenantIds = new HashSet<>();
 
     @NotNull(message = "Le statut est obligatoire")
     @ApiModelProperty(value = "Statut de la formation", example = "EN_COURS", required = true, allowableValues = "PLANIFIEE,EN_COURS,TERMINEE,ANNULEE", position = 11)

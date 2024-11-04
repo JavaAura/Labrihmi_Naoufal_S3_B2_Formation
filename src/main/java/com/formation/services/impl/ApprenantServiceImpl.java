@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ApprenantServiceImpl implements IApprenantService {
     private static final Logger logger = LoggerFactory.getLogger(ApprenantServiceImpl.class);
+    private static final String APPRENANT_NOT_FOUND_MESSAGE = "Apprenant not found with id: ";
 
     private final ApprenantRepository apprenantRepository;
     private final ClasseRepository classeRepository;
@@ -60,23 +61,40 @@ public class ApprenantServiceImpl implements IApprenantService {
                     Apprenant savedApprenant = apprenantRepository.save(existingApprenant);
                     return apprenantMapper.toDTO(savedApprenant);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant non trouvé avec l'id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + id));
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         logger.info("Deleting apprenant with id: {}", id);
-        if (!apprenantRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Apprenant not found with id: " + id);
+        Apprenant apprenant = apprenantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + id));
+
+        // Remove from classe if any
+        if (apprenant.getClasse() != null) {
+            apprenant.setClasse(null);
         }
-        apprenantRepository.deleteById(id);
+
+        // Clear formations
+        apprenant.getFormations().clear();
+        apprenantRepository.save(apprenant);
+        apprenantRepository.flush();
+
+        apprenantRepository.delete(apprenant);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ApprenantDTO> findById(Long id) {
         return apprenantRepository.findById(id)
-                .map(apprenantMapper::toDTO);
+                .map(apprenant -> {
+                    ApprenantDTO dto = apprenantMapper.toDTO(apprenant);
+                    dto.setFormationIds(apprenant.getFormations().stream()
+                            .map(Formation::getId)
+                            .collect(Collectors.toSet()));
+                    return dto;
+                });
     }
 
     @Override
@@ -128,7 +146,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     public void assignToClasse(Long apprenantId, Long classeId) {
         logger.info("Assigning apprenant {} to classe {}", apprenantId, classeId);
         Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + apprenantId));
 
         Classe classe = classeRepository.findById(classeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
@@ -146,7 +164,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     public void removeFromClasse(Long apprenantId) {
         logger.info("Removing apprenant {} from classe", apprenantId);
         Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + apprenantId));
 
         apprenant.setClasse(null);
         apprenantRepository.save(apprenant);
@@ -157,7 +175,7 @@ public class ApprenantServiceImpl implements IApprenantService {
     public void assignToFormation(Long apprenantId, Long formationId) {
         logger.info("Assigning apprenant {} to formation {}", apprenantId, formationId);
         Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found with id: " + apprenantId));
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + apprenantId));
 
         Formation formation = formationRepository.findById(formationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));
@@ -173,13 +191,14 @@ public class ApprenantServiceImpl implements IApprenantService {
         apprenant.getFormations().add(formation);
         formation.getApprenants().add(apprenant);
         apprenantRepository.save(apprenant);
+        apprenantRepository.flush();
     }
 
     @Override
     @Transactional
     public void removeFromFormation(Long apprenantId, Long formationId) {
         Apprenant apprenant = apprenantRepository.findById(apprenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Apprenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(APPRENANT_NOT_FOUND_MESSAGE + apprenantId));
 
         Formation formation = formationRepository.findById(formationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Formation not found"));

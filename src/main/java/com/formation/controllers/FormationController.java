@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/formations")
-@Api(tags = "Gestion des Formations", description = "API pour la gestion des formations")
+@Api(tags = "Gestion des Formations")
 @Validated
 @RequiredArgsConstructor
 public class FormationController {
@@ -44,12 +44,12 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 500, message = "Erreur interne du serveur")
         })
         @ResponseStatus(HttpStatus.CREATED)
-        public ApiResponse create(
+        public ApiResponse<FormationDTO> create(
                         @ApiParam(value = "Données de la formation à créer", required = true) @Valid @RequestBody FormationDTO formationDTO) {
                 logger.info("Creating new formation: {}", formationDTO.getTitre());
                 return Optional.of(formationDTO)
                                 .map(formationService::save)
-                                .map(saved -> new ApiResponse(true, "Formation créée avec succès", saved))
+                                .map(saved -> new ApiResponse<>(true, "Formation créée avec succès", saved))
                                 .orElseThrow(() -> new ValidationException("Erreur lors de la création"));
         }
 
@@ -60,13 +60,13 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation non trouvée"),
                         @io.swagger.annotations.ApiResponse(code = 400, message = "Données invalides")
         })
-        public ResponseEntity<ApiResponse> update(
+        public ResponseEntity<ApiResponse<FormationDTO>> update(
                         @ApiParam(value = "ID de la formation", required = true) @PathVariable @NotNull Long id,
                         @ApiParam(value = "Nouvelles données de la formation", required = true) @Valid @RequestBody FormationDTO formationDTO) {
                 logger.info("Updating formation with id: {}", id);
                 try {
                         FormationDTO updated = formationService.update(id, formationDTO);
-                        return ResponseEntity.ok(new ApiResponse(true, "Formation mise à jour avec succès", updated));
+                        return ResponseEntity.ok(new ApiResponse<>(true, "Formation mise à jour avec succès", updated));
                 } catch (ValidationException | ResourceNotFoundException e) {
                         throw e;
                 } catch (Exception e) {
@@ -81,11 +81,11 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 200, message = "Formation supprimée avec succès"),
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation non trouvée")
         })
-        public ResponseEntity<ApiResponse> delete(
+        public ResponseEntity<ApiResponse<Void>> delete(
                         @ApiParam(value = "ID de la formation à supprimer", required = true) @PathVariable Long id) {
                 logger.info("Deleting formation with id: {}", id);
                 formationService.delete(id);
-                return ResponseEntity.ok(new ApiResponse(true, "Formation supprimée avec succès", null));
+                return ResponseEntity.ok(new ApiResponse<>(true, "Formation supprimée avec succès", null));
         }
 
         @GetMapping("/{id}")
@@ -172,12 +172,12 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation ou apprenant non trouvé"),
                         @io.swagger.annotations.ApiResponse(code = 400, message = "Ajout impossible - Formation complète")
         })
-        public ResponseEntity<ApiResponse> addApprenant(
+        public ResponseEntity<ApiResponse<Boolean>> addApprenant(
                         @ApiParam(value = "ID de la formation", required = true) @PathVariable Long id,
                         @ApiParam(value = "ID de l'apprenant", required = true) @PathVariable Long apprenantId) {
                 logger.info("Adding apprenant {} to formation {}", apprenantId, id);
                 boolean added = formationService.addApprenantToFormation(id, apprenantId);
-                return ResponseEntity.ok(new ApiResponse(true, "Apprenant ajouté à la formation avec succès", added));
+                return ResponseEntity.ok(new ApiResponse<>(true, "Apprenant ajouté à la formation avec succès", added));
         }
 
         @DeleteMapping("/{id}/apprenants/{apprenantId}")
@@ -186,13 +186,13 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 200, message = "Apprenant retiré avec succès"),
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation ou apprenant non trouvé")
         })
-        public ResponseEntity<ApiResponse> removeApprenant(
+        public ResponseEntity<ApiResponse<Boolean>> removeApprenant(
                         @ApiParam(value = "ID de la formation", required = true) @PathVariable Long id,
                         @ApiParam(value = "ID de l'apprenant", required = true) @PathVariable Long apprenantId) {
                 logger.info("Removing apprenant {} from formation {}", apprenantId, id);
                 boolean removed = formationService.removeApprenantFromFormation(id, apprenantId);
                 return ResponseEntity
-                                .ok(new ApiResponse(true, "Apprenant retiré de la formation avec succès", removed));
+                                .ok(new ApiResponse<>(true, "Apprenant retiré de la formation avec succès", removed));
         }
 
         @PutMapping("/{id}/status/{status}")
@@ -202,12 +202,13 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation non trouvée"),
                         @io.swagger.annotations.ApiResponse(code = 400, message = "Statut invalide")
         })
-        public ResponseEntity<ApiResponse> updateStatus(
+        public ResponseEntity<ApiResponse<Void>> updateStatus(
                         @ApiParam(value = "ID de la formation", required = true) @PathVariable Long id,
                         @ApiParam(value = "Nouveau statut", required = true) @PathVariable FormationStatus status) {
                 logger.info("Updating status of formation {} to {}", id, status);
                 formationService.updateStatus(id, status);
-                return ResponseEntity.ok(new ApiResponse(true, "Statut de la formation mis à jour avec succès", null));
+                return ResponseEntity
+                                .ok(new ApiResponse<>(true, "Statut de la formation mis à jour avec succès", null));
         }
 
         @GetMapping("/niveau/{niveau}")
@@ -240,11 +241,11 @@ public class FormationController {
                         @io.swagger.annotations.ApiResponse(code = 200, message = "Vérification effectuée avec succès"),
                         @io.swagger.annotations.ApiResponse(code = 404, message = "Formation non trouvée")
         })
-        public ResponseEntity<ApiResponse> isFormationFull(
+        public ResponseEntity<ApiResponse<Boolean>> isFormationFull(
                         @ApiParam(value = "ID de la formation", required = true) @PathVariable Long id) {
                 logger.info("Checking if formation {} is full", id);
                 boolean isFull = formationService.isFormationFull(id);
-                return ResponseEntity.ok(new ApiResponse(true, "Vérification effectuée", isFull));
+                return ResponseEntity.ok(new ApiResponse<>(true, "Vérification effectuée", isFull));
         }
 
 }

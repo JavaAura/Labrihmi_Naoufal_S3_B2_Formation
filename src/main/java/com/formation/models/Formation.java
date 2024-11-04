@@ -70,6 +70,23 @@ public class Formation {
     @Builder.Default
     private Set<Apprenant> apprenants = new HashSet<>();
 
+    @PreRemove
+    private void removeApprenantAssociations() {
+        for (Apprenant apprenant : apprenants) {
+            apprenant.getFormations().remove(this);
+        }
+    }
+
+    public void addApprenant(Apprenant apprenant) {
+        this.apprenants.add(apprenant);
+        apprenant.getFormations().add(this);
+    }
+
+    public void removeApprenant(Apprenant apprenant) {
+        this.apprenants.remove(apprenant);
+        apprenant.getFormations().remove(this);
+    }
+
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Le statut est obligatoire")
     private FormationStatus statut;

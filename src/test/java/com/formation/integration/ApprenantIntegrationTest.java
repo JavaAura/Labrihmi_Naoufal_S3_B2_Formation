@@ -3,7 +3,6 @@ package com.formation.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formation.dto.ApprenantDTO;
 import com.formation.models.Apprenant;
-import com.formation.models.Classe;
 import com.formation.models.Formation;
 import com.formation.models.FormationStatus;
 import com.formation.models.NiveauFormation;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +67,7 @@ class ApprenantIntegrationTest {
     void updateApprenant_ShouldReturnUpdated() throws Exception {
         Apprenant existingApprenant = createAndSaveApprenant();
         ApprenantDTO updateDTO = createValidApprenantDTO();
-        updateDTO.setNiveau("INTERMEDIAIRE");
+        updateDTO.setNiveau(NiveauFormation.INTERMEDIAIRE);
 
         mockMvc.perform(put("/api/apprenants/{id}", existingApprenant.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +130,7 @@ class ApprenantIntegrationTest {
                 .nom("Dupont")
                 .prenom("Jean")
                 .email("jean.dupont@email.com")
-                .niveau("DEBUTANT")
+                .niveau(NiveauFormation.DEBUTANT)
                 .build();
     }
 
@@ -141,7 +139,7 @@ class ApprenantIntegrationTest {
                 .nom("Dupont")
                 .prenom("Jean")
                 .email("jean.dupont@email.com")
-                .niveau("DEBUTANT")
+                .niveau(NiveauFormation.DEBUTANT)
                 .formations(new HashSet<>())
                 .build();
         return apprenantRepository.save(apprenant);
@@ -161,11 +159,5 @@ class ApprenantIntegrationTest {
         return formationRepository.save(formation);
     }
 
-    private Classe createAndSaveClasse() {
-        Classe classe = Classe.builder()
-                .nom("Classe Test")
-                .numSalle("A101")
-                .build();
-        return classeRepository.save(classe);
-    }
+
 }

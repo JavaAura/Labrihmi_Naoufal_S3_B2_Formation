@@ -3,7 +3,6 @@ package com.formation.utils;
 import com.formation.dto.FormateurDTO;
 import com.formation.models.Formateur;
 import com.formation.models.Formation;
-import com.formation.models.Classe;
 import com.formation.repositories.ClasseRepository;
 import com.formation.repositories.FormationRepository;
 import lombok.RequiredArgsConstructor;

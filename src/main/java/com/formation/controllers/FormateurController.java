@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/formateurs")
 @RequiredArgsConstructor
-@Api(tags = "Gestion des Formateurs", description = "API pour la gestion des formateurs")
+@Api(tags = "Gestion des Formateurs")
 @Validated
 public class FormateurController {
     private static final Logger logger = LoggerFactory.getLogger(FormateurController.class);
@@ -37,11 +37,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 400, message = "Données du formateur invalides"),
             @io.swagger.annotations.ApiResponse(code = 500, message = "Erreur interne du serveur")
     })
-    public ResponseEntity<ApiResponse> create(
+    public ResponseEntity<ApiResponse<FormateurDTO>> create(
             @ApiParam(value = "Données du formateur à créer", required = true) @Valid @RequestBody FormateurDTO formateurDTO) {
         logger.info("Creating new formateur: {}", formateurDTO.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse(true, "Formateur créé avec succès",
+                .body(new ApiResponse<>(true, "Formateur créé avec succès",
                         formateurService.save(formateurDTO)));
     }
 
@@ -52,11 +52,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur non trouvé"),
             @io.swagger.annotations.ApiResponse(code = 400, message = "Données invalides")
     })
-    public ResponseEntity<ApiResponse> update(
+    public ResponseEntity<ApiResponse<FormateurDTO>> update(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable @NotNull Long id,
             @ApiParam(value = "Nouvelles données du formateur", required = true) @Valid @RequestBody FormateurDTO formateurDTO) {
         logger.info("Updating formateur with id: {}", id);
-        return ResponseEntity.ok(new ApiResponse(true, "Formateur mis à jour avec succès",
+        return ResponseEntity.ok(new ApiResponse<>(true, "Formateur mis à jour avec succès",
                 formateurService.update(id, formateurDTO)));
     }
 
@@ -66,11 +66,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Formateur supprimé avec succès"),
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur non trouvé")
     })
-    public ResponseEntity<ApiResponse> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @ApiParam(value = "ID du formateur à supprimer", required = true) @PathVariable Long id) {
         logger.info("Deleting formateur with id: {}", id);
         formateurService.delete(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Formateur supprimé avec succès", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Formateur supprimé avec succès", null));
     }
 
     @GetMapping("/{id}")
@@ -79,11 +79,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Formateur trouvé", response = FormateurDTO.class),
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur non trouvé")
     })
-    public ResponseEntity<FormateurDTO> findById(
+    public ResponseEntity<ApiResponse<FormateurDTO>> findById(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable Long id) {
         logger.info("Fetching formateur with id: {}", id);
         return formateurService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(formateur -> ResponseEntity.ok(new ApiResponse<>(true, "Formateur trouvé", formateur)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -92,9 +92,10 @@ public class FormateurController {
     @ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Liste des formateurs récupérée avec succès", response = List.class)
     })
-    public ResponseEntity<List<FormateurDTO>> findAll() {
+    public ResponseEntity<ApiResponse<List<FormateurDTO>>> findAll() {
         logger.info("Fetching all formateurs");
-        return ResponseEntity.ok(formateurService.findAll());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Liste des formateurs récupérée avec succès", 
+            formateurService.findAll()));
     }
 
     @GetMapping("/page")
@@ -102,8 +103,7 @@ public class FormateurController {
     @ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Page de formateurs récupérée avec succès", response = Page.class)
     })
-    public ResponseEntity<Page<FormateurDTO>> findAllPaginated(
-            @ApiParam(value = "Informations de pagination") Pageable pageable) {
+    public ResponseEntity<Page<FormateurDTO>> findAllPaginated(Pageable pageable) {
         logger.info("Fetching formateurs page: {}", pageable.getPageNumber());
         return ResponseEntity.ok(formateurService.findAll(pageable));
     }
@@ -114,11 +114,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Formateur trouvé", response = FormateurDTO.class),
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur non trouvé")
     })
-    public ResponseEntity<FormateurDTO> findByEmail(
+    public ResponseEntity<ApiResponse<FormateurDTO>> findByEmail(
             @ApiParam(value = "Email du formateur", required = true) @PathVariable String email) {
         logger.info("Fetching formateur by email: {}", email);
         return formateurService.findByEmail(email)
-                .map(ResponseEntity::ok)
+                .map(formateur -> ResponseEntity.ok(new ApiResponse<>(true, "Formateur trouvé", formateur)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -128,10 +128,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Liste des formateurs récupérée avec succès", response = List.class),
             @io.swagger.annotations.ApiResponse(code = 400, message = "Spécialité invalide")
     })
-    public ResponseEntity<List<FormateurDTO>> findBySpecialite(
+    public ResponseEntity<ApiResponse<List<FormateurDTO>>> findBySpecialite(
             @ApiParam(value = "Spécialité recherchée", required = true) @PathVariable String specialite) {
         logger.info("Fetching formateurs by specialite: {}", specialite);
-        return ResponseEntity.ok(formateurService.findBySpecialite(specialite));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Liste des formateurs récupérée avec succès", 
+            formateurService.findBySpecialite(specialite)));
     }
 
     @GetMapping("/search")
@@ -154,12 +155,12 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur ou classe non trouvé"),
             @io.swagger.annotations.ApiResponse(code = 400, message = "Assignation impossible")
     })
-    public ResponseEntity<ApiResponse> assignToClasse(
+    public ResponseEntity<ApiResponse<Void>> assignToClasse(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable Long id,
             @ApiParam(value = "ID de la classe", required = true) @PathVariable Long classeId) {
         logger.info("Assigning formateur {} to classe {}", id, classeId);
         formateurService.assignToClasse(id, classeId);
-        return ResponseEntity.ok(new ApiResponse(true, "Formateur assigné à la classe avec succès", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Formateur assigné à la classe avec succès", null));
     }
 
     @DeleteMapping("/{id}/classes")
@@ -168,11 +169,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Formateur retiré avec succès", response = ApiResponse.class),
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur non trouvé")
     })
-    public ResponseEntity<ApiResponse> removeFromClasse(
+    public ResponseEntity<ApiResponse<Void>> removeFromClasse(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable Long id) {
         logger.info("Removing formateur {} from classe", id);
         formateurService.removeFromClasse(id);
-        return ResponseEntity.ok(new ApiResponse(true, "Formateur retiré de la classe avec succès", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Formateur retiré de la classe avec succès", null));
     }
 
     @PostMapping("/{id}/formations/{formationId}")
@@ -182,12 +183,12 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur ou formation non trouvé"),
             @io.swagger.annotations.ApiResponse(code = 400, message = "Assignation impossible")
     })
-    public ResponseEntity<ApiResponse> assignToFormation(
+    public ResponseEntity<ApiResponse<Void>> assignToFormation(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable @NotNull Long id,
             @ApiParam(value = "ID de la formation", required = true) @PathVariable @NotNull Long formationId) {
         logger.info("Assigning formateur {} to formation {}", id, formationId);
         formateurService.assignToFormation(id, formationId);
-        return ResponseEntity.ok(new ApiResponse(true,
+        return ResponseEntity.ok(new ApiResponse<>(true,
                 "Formateur assigné à la formation avec succès", null));
     }
 
@@ -198,11 +199,11 @@ public class FormateurController {
             @io.swagger.annotations.ApiResponse(code = 404, message = "Formateur ou formation non trouvé"),
             @io.swagger.annotations.ApiResponse(code = 400, message = "Retrait impossible")
     })
-    public ResponseEntity<ApiResponse> removeFromFormation(
+    public ResponseEntity<ApiResponse<Void>> removeFromFormation(
             @ApiParam(value = "ID du formateur", required = true) @PathVariable Long id,
             @ApiParam(value = "ID de la formation", required = true) @PathVariable Long formationId) {
         logger.info("Removing formateur {} from formation {}", id, formationId);
         formateurService.removeFromFormation(id, formationId);
-        return ResponseEntity.ok(new ApiResponse(true, "Formateur retiré de la formation avec succès", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "Formateur retiré de la formation avec succès", null));
     }
 }

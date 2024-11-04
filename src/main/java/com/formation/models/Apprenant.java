@@ -36,17 +36,35 @@ public class Apprenant {
     @Column(unique = true)
     private String email;
 
-    private String niveau;
+    @Enumerated(EnumType.STRING)
+    private NiveauFormation niveau;
 
-    @ManyToMany(mappedBy = "apprenants", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "apprenants", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @Builder.Default
     private Set<Formation> formations = new HashSet<>();
+
+    @PreRemove
+    private void removeFormationAssociations() {
+        for (Formation formation : formations) {
+            formation.getApprenants().remove(this);
+        }
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classe_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Classe classe;
+
+    public void addFormation(Formation formation) {
+        this.formations.add(formation);
+        formation.getApprenants().add(this);
+    }
+
+    public void removeFormation(Formation formation) {
+        this.formations.remove(formation);
+        formation.getApprenants().remove(this);
+    }
 }

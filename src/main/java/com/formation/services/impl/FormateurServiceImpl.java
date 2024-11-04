@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 public class FormateurServiceImpl implements IFormateurService {
     private static final Logger logger = LoggerFactory.getLogger(FormateurServiceImpl.class);
 
+    private static final String FORMATEUR_NOT_FOUND = "Formateur not found with id: ";
+
     private final FormateurRepository formateurRepository;
     private final ClasseRepository classeRepository;
     private final FormationRepository formationRepository;
@@ -87,12 +89,27 @@ public class FormateurServiceImpl implements IFormateurService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         logger.info("Deleting formateur with id: {}", id);
-        if (!formateurRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Formateur not found with id: " + id);
+        Formateur formateur = formateurRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(FORMATEUR_NOT_FOUND + id));
+
+        // Remove formateur from all formations
+        formateur.getFormations().forEach(formation -> {
+            formation.setFormateur(null);
+        });
+        formateur.getFormations().clear();
+
+        // Remove formateur from classe if any
+        if (formateur.getClasse() != null) {
+            formateur.getClasse().setFormateur(null);
+            formateur.setClasse(null);
         }
-        formateurRepository.deleteById(id);
+
+        formateurRepository.save(formateur);
+        formateurRepository.flush();
+        formateurRepository.delete(formateur);
     }
 
     @Override
@@ -145,7 +162,7 @@ public class FormateurServiceImpl implements IFormateurService {
     public void assignToClasse(Long formateurId, Long classeId) {
         logger.info("Assigning formateur {} to classe {}", formateurId, classeId);
         Formateur formateur = formateurRepository.findById(formateurId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+                .orElseThrow(() -> new ResourceNotFoundException(FORMATEUR_NOT_FOUND + formateurId));
 
         Classe classe = classeRepository.findById(classeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classe not found with id: " + classeId));
@@ -159,7 +176,7 @@ public class FormateurServiceImpl implements IFormateurService {
     public void removeFromClasse(Long formateurId) {
         logger.info("Removing formateur {} from classe", formateurId);
         Formateur formateur = formateurRepository.findById(formateurId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+                .orElseThrow(() -> new ResourceNotFoundException(FORMATEUR_NOT_FOUND + formateurId));
 
         formateur.setClasse(null);
         formateurRepository.save(formateur);
@@ -170,7 +187,7 @@ public class FormateurServiceImpl implements IFormateurService {
     public void removeFromFormation(Long formateurId, Long formationId) {
         logger.info("Removing formateur {} from formation {}", formateurId, formationId);
         Formateur formateur = formateurRepository.findById(formateurId)
-                .orElseThrow(() -> new ResourceNotFoundException("Formateur not found with id: " + formateurId));
+                .orElseThrow(() -> new ResourceNotFoundException(FORMATEUR_NOT_FOUND + formateurId));
 
         Formation formation = formationRepository.findById(formationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Formation not found with id: " + formationId));

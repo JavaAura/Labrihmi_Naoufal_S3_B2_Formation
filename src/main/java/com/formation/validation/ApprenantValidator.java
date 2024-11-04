@@ -2,6 +2,7 @@ package com.formation.validation;
 
 import com.formation.dto.ApprenantDTO;
 import com.formation.models.Apprenant;
+import com.formation.models.NiveauFormation;
 import com.formation.repositories.ApprenantRepository;
 import com.formation.validation.base.EntityValidator;
 import com.formation.validation.exception.ValidationException;
@@ -75,9 +76,9 @@ public class ApprenantValidator implements EntityValidator<ApprenantDTO> {
         }
     }
 
-    private void validateNiveau(String niveau) {
-        if (niveau == null || !VALID_NIVEAUX.contains(niveau.toUpperCase())) {
-            throw new ValidationException("Le niveau doit être DEBUTANT, INTERMEDIAIRE ou AVANCE");
+    private void validateNiveau(NiveauFormation niveau) {
+        if (niveau == null) {
+            throw new ValidationException("Le niveau est obligatoire");
         }
     }
 }

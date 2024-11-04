@@ -82,12 +82,11 @@ public class ClasseValidator implements EntityValidator<ClasseDTO> {
     }
 
     private void validateUniqueNumSalle(String numSalle, Long excludeId) {
-        if (classeRepository.existsByNumSalle(numSalle)) {
-            if (excludeId == null || !classeRepository.findById(excludeId)
-                    .map(classe -> classe.getNumSalle().equals(numSalle))
-                    .orElse(false)) {
-                throw new ValidationException("Le numéro de salle " + numSalle + " est déjà utilisé");
-            }
+        if (classeRepository.existsByNumSalle(numSalle) &&
+                (excludeId == null || !classeRepository.findById(excludeId)
+                        .map(classe -> classe.getNumSalle().equals(numSalle))
+                        .orElse(false))) {
+            throw new ValidationException("Le numéro de salle " + numSalle + " est déjà utilisé");
         }
     }
 

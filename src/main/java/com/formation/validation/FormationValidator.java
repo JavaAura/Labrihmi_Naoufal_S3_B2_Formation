@@ -86,12 +86,6 @@ public class FormationValidator {
         }
     }
 
-    private void validateInitialStatus(FormationDTO formation) {
-        if (formation.getStatut() != FormationStatus.PLANIFIEE) {
-            throw new ValidationException("Une nouvelle formation doit avoir le statut PLANIFIEE");
-        }
-    }
-
     public void validateStatusTransition(FormationStatus currentStatus, FormationStatus newStatus) {
         if (currentStatus == FormationStatus.TERMINEE || currentStatus == FormationStatus.ANNULEE) {
             throw new ValidationException("Impossible de modifier une formation terminée ou annulée");
