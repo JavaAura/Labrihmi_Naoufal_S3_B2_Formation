@@ -160,6 +160,15 @@ La documentation Swagger est accessible à:
 4. Push vers la branche (`git push origin feature/nouvelle-feature`)
 5. Créer une Pull Request
 
+## Gestion de Projet
+
+- Git pour le contrôle de version
+- JIRA pour la gestion de projet Scrum : [Lien JIRA](https://naoufallabrihmi.atlassian.net/jira/software/projects/FOR/boards/3)
+
+## Diagramme UML
+
+Le diagramme UML du projet est disponible dans le fichier `UML.mdj` dans le dossier `@src` du projet.
+
 ## Auteur
 
 - Naoufal LABRIHMI
